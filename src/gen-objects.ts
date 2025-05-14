@@ -53,12 +53,12 @@ import { encodeXmlEntities, getNewRelId, getSmartParseNumber, inch2Emu, valToPts
 let _chartCounter = 0
 
 /**
- * Transforms a slide definition to a slide object that is then passed to the XML transformation process.
+ * Transforms a slide definition to a slide object that is then passed to the XML transformation process. 
  * @param {SlideMasterProps} props - slide definition
  * @param {PresSlide|SlideLayout} target - empty slide object that should be updated by the passed definition
  */
-export function createSlideMaster (props: SlideMasterProps, target: SlideLayout): void {
-	// STEP 1: Add background if either the slide or layout has background props
+export function createSlideMaster(props: SlideMasterProps, target: SlideLayout): void {
+	// STEP 1: Add background if either the slide or layout has background props 
 	// if (props.background || target.background) addBackgroundDefinition(props.background, target)
 	if (props.bkgd) target.bkgd = props.bkgd // DEPRECATED: (remove in v4.0.0)
 
@@ -84,13 +84,13 @@ export function createSlideMaster (props: SlideMasterProps, target: SlideLayout)
 				// else if (object[key].image) addImageDefinition(tgt, object[key].image)
 				/* 20200120: So... image placeholders go into the "slideLayoutN.xml" file and addImage doesnt do this yet...
 					<p:sp>
-				  <p:nvSpPr>
+					<p:nvSpPr>
 					<p:cNvPr id="7" name="Picture Placeholder 6">
-					  <a:extLst>
+						<a:extLst>
 						<a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">
-						  <a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{CE1AE45D-8641-0F4F-BDB5-080E69CCB034}"/>
+							<a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{CE1AE45D-8641-0F4F-BDB5-080E69CCB034}"/>
 						</a:ext>
-					  </a:extLst>
+						</a:extLst>
 					</p:cNvPr>
 					<p:cNvSpPr>
 				*/
@@ -127,8 +127,8 @@ export function createSlideMaster (props: SlideMasterProps, target: SlideLayout)
  *    ]
  * }
  */
-export function addChartDefinition (target: PresSlide, type: CHART_NAME | IChartMulti[], data: IOptsChartData[], opt: IChartOptsLib): object {
-	function correctGridLineOptions (glOpts: OptsChartGridLine): void {
+export function addChartDefinition(target: PresSlide, type: CHART_NAME | IChartMulti[], data: IOptsChartData[], opt: IChartOptsLib): object {
+	function correctGridLineOptions(glOpts: OptsChartGridLine): void {
 		if (!glOpts || glOpts.style === 'none') return
 		if (glOpts.size !== undefined && (isNaN(Number(glOpts.size)) || glOpts.size <= 0)) {
 			console.warn('Warning: chart.gridLine.size must be greater than 0.')
@@ -375,7 +375,7 @@ export function addChartDefinition (target: PresSlide, type: CHART_NAME | IChart
  * @note: Remote images (eg: "http://whatev.com/blah"/from web and/or remote server arent supported yet - we'd need to create an <img>, load it, then send to canvas
  * @see: https://stackoverflow.com/questions/164181/how-to-fetch-a-remote-image-to-display-in-a-canvas)
  */
-export function addImageDefinition (target: PresSlide, opt: ImageProps): void {
+export function addImageDefinition(target: PresSlide, opt: ImageProps): void {
 	const newObject: ISlideObject = {
 		_type: null,
 		text: null,
@@ -514,7 +514,7 @@ export function addImageDefinition (target: PresSlide, opt: ImageProps): void {
 	}
 
 	// STEP 6: Add object to slide
-	target._slideObjects.push(newObject)
+	target._slideObjects.push(newObject) 
 }
 
 /**
@@ -522,7 +522,7 @@ export function addImageDefinition (target: PresSlide, opt: ImageProps): void {
  * @param {PresSlide} `target` - slide object that the media will be added to
  * @param {MediaProps} `opt` - media options
  */
-export function addMediaDefinition (target: PresSlide, opt: MediaProps): void {
+export function addMediaDefinition(target: PresSlide, opt: MediaProps): void {
 	const intPosX = opt.x || 0
 	const intPosY = opt.y || 0
 	const intSizeX = opt.w || 2
@@ -646,7 +646,7 @@ export function addMediaDefinition (target: PresSlide, opt: MediaProps): void {
  * @param {string} `notes`
  * @since 2.3.0
  */
-export function addNotesDefinition (target: PresSlide, notes: string): void {
+export function addNotesDefinition(target: PresSlide, notes: string): void {
 	target._slideObjects.push({
 		_type: SLIDE_OBJECT_TYPES.notes,
 		text: [{ text: notes }],
@@ -659,7 +659,7 @@ export function addNotesDefinition (target: PresSlide, notes: string): void {
  * @param {SHAPE_NAME} shapeName shape name
  * @param {ShapeProps} opts shape options
  */
-export function addShapeDefinition (target: PresSlide, shapeName: SHAPE_NAME, opts: ShapeProps): void {
+export function addShapeDefinition(target: PresSlide, shapeName: SHAPE_NAME, opts: ShapeProps): void {
 	const options = typeof opts === 'object' ? opts : {}
 	options.line = options.line || { type: 'none' }
 	const newObject: ISlideObject = {
@@ -721,7 +721,7 @@ export function addShapeDefinition (target: PresSlide, shapeName: SHAPE_NAME, op
  * @param {Function} addSlide - method
  * @param {Function} getSlide - method
  */
-export function addTableDefinition (
+export function addTableDefinition(
 	target: PresSlide,
 	tableRows: TableRow[],
 	options: TableProps,
@@ -987,7 +987,7 @@ export function addTableDefinition (
  * @param {boolean} isPlaceholder whether this a placeholder object
  * @since: 1.0.0
  */
-export function addTextDefinition (target: PresSlide, text: TextProps[], opts: TextPropsOptions, isPlaceholder: boolean): void {
+export function addTextDefinition(target: PresSlide, text: TextProps[], opts: TextPropsOptions, isPlaceholder: boolean): void {
 	const newObject: ISlideObject = {
 		_type: isPlaceholder ? SLIDE_OBJECT_TYPES.placeholder : SLIDE_OBJECT_TYPES.text,
 		shape: (opts?.shape) || SHAPE_TYPE.RECTANGLE,
@@ -995,12 +995,13 @@ export function addTextDefinition (target: PresSlide, text: TextProps[], opts: T
 		options: opts || {},
 	}
 
-	function cleanOpts (itemOpts: ObjectOptions): TextPropsOptions {
+	function cleanOpts(itemOpts: ObjectOptions): TextPropsOptions {
 		// STEP 1: Set some options
 		{
 			// A.1: Color (placeholders should inherit their colors or override them, so don't default them)
 			if (!itemOpts.placeholder) {
 				itemOpts.color = itemOpts.color || newObject.options.color || target.color || DEF_FONT_COLOR
+				itemOpts.transparency = itemOpts.transparency || 0
 			}
 
 			// A.2: Placeholder should inherit their bullets or override them, so don't default them
@@ -1108,7 +1109,7 @@ export function addTextDefinition (target: PresSlide, text: TextProps[], opts: T
  * Adds placeholder objects to slide
  * @param {PresSlide} slide - slide object containing layouts
  */
-export function addPlaceholdersToSlideLayouts (slide: PresSlide): void {
+export function addPlaceholdersToSlideLayouts(slide: PresSlide): void {
 	// Add all placeholders on this Slide that dont already exist
 	(slide._slideLayout._slideObjects || []).forEach(slideLayoutObj => {
 		if (slideLayoutObj._type === SLIDE_OBJECT_TYPES.placeholder) {
@@ -1129,7 +1130,7 @@ export function addPlaceholdersToSlideLayouts (slide: PresSlide): void {
  * @param {BackgroundProps} props - color string or an object with image definition
  * @param {PresSlide} target - slide object that the background is set to
  */
-export function addBackgroundDefinition (props: BackgroundProps, target: SlideLayout): void {
+export function addBackgroundDefinition(props: BackgroundProps, target: SlideLayout): void {
 	// A: @deprecated
 	if (target.bkgd) {
 		if (!target.background) target.background = {}
@@ -1170,7 +1171,7 @@ export function addBackgroundDefinition (props: BackgroundProps, target: SlideLa
  * @param {PresSlide} target - slide object that any hyperlinks will be be added to
  * @param {number | string | TextProps | TextProps[] | ITableCell[][]} text - text to parse
  */
-function createHyperlinkRels (target: PresSlide, text: number | string | ISlideObject | TextProps | TextProps[] | TableCell[][]): void {
+function createHyperlinkRels(target: PresSlide, text: number | string | ISlideObject | TextProps | TextProps[] | TableCell[][]): void {
 	let textObjs = []
 
 	// Only text objects can have hyperlinks, bail when text param is plain text

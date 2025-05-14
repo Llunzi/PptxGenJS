@@ -79,6 +79,7 @@ import {
 } from './core-enums'
 import {
 	AddSlideProps,
+	FontProps,
 	IPresentationProps,
 	PresLayout,
 	PresSlide,
@@ -504,17 +505,18 @@ export default class PptxGenJS implements IPresentationProps {
 			zip.folder('ppt/charts').folder('_rels')
 			zip.folder('ppt/embeddings')
 			zip.folder('ppt/media')
+			zip.folder('ppt/fonts')
 			zip.folder('ppt/slideLayouts').folder('_rels')
 			zip.folder('ppt/slideMasters').folder('_rels')
 			zip.folder('ppt/slides').folder('_rels')
 			zip.folder('ppt/theme')
 			zip.folder('ppt/notesMasters').folder('_rels')
 			zip.folder('ppt/notesSlides').folder('_rels')
-			zip.file('[Content_Types].xml', genXml.makeXmlContTypes(this.slides, this.slideLayouts, this.masterSlide)) // TODO: pass only `this` like below! 20200206
+			zip.file('[Content_Types].xml', genXml.makeXmlContTypes(this.slides, this.slideLayouts, this.masterSlide, this)) // TODO: pass only `this` like below! 20200206
 			zip.file('_rels/.rels', genXml.makeXmlRootRels())
 			zip.file('docProps/app.xml', genXml.makeXmlApp(this.slides, this.company)) // TODO: pass only `this` like below! 20200206
 			zip.file('docProps/core.xml', genXml.makeXmlCore(this.title, this.subject, this.author, this.revision)) // TODO: pass only `this` like below! 20200206
-			zip.file('ppt/_rels/presentation.xml.rels', genXml.makeXmlPresentationRels(this.slides))
+			zip.file('ppt/_rels/presentation.xml.rels', genXml.makeXmlPresentationRels(this.slides, this))
 			zip.file('ppt/theme/theme1.xml', genXml.makeXmlTheme(this))
 			zip.file('ppt/presentation.xml', genXml.makeXmlPresentation(this))
 			zip.file('ppt/presProps.xml', genXml.makeXmlPresProps())
@@ -537,6 +539,10 @@ export default class PptxGenJS implements IPresentationProps {
 			zip.file('ppt/slideMasters/_rels/slideMaster1.xml.rels', genXml.makeXmlMasterRel(this.masterSlide, this.slideLayouts))
 			zip.file('ppt/notesMasters/notesMaster1.xml', genXml.makeXmlNotesMaster())
 			zip.file('ppt/notesMasters/_rels/notesMaster1.xml.rels', genXml.makeXmlNotesMasterRel())
+
+			this._fonts.forEach(font => {
+				zip.file(`ppt/fonts/font${font.rId}.fntdata`, font.data)
+			})
 
 			// D: Create all Rels (images, media, chart data)
 			this.slideLayouts.forEach(layout => {
@@ -786,5 +792,23 @@ export default class PptxGenJS implements IPresentationProps {
 			options,
 			options?.masterSlideName ? this.slideLayouts.filter(layout => layout._name === options.masterSlideName)[0] : null
 		)
+	}
+
+	private fontId = 1000
+	private readonly _fonts: FontProps[] = []
+
+	public get fonts(): FontProps[] {
+		return this._fonts
+	}
+
+	/**
+	 * Add a new Font to Presentation
+	 * @param {FontProps} font - font properties
+	 */
+	addFont(font: FontProps): void {
+		this._fonts.push({
+			...font,
+			rId: ++ this.fontId,
+		})
 	}
 }

@@ -30,11 +30,11 @@ export function getSmartParseNumber (size: Coord, xyDir: 'X' | 'Y', layout: Pres
 
 	// CASE 3: Percentage (ex: '50%')
 	if (typeof size === 'string' && size.includes('%')) {
-		if (xyDir && xyDir === 'X') return Math.round((parseFloat(size) / 100) * layout.width)
-		if (xyDir && xyDir === 'Y') return Math.round((parseFloat(size) / 100) * layout.height)
+		if (xyDir && xyDir === 'X') return (parseFloat(size) / 100) * layout.width
+		if (xyDir && xyDir === 'Y') return (parseFloat(size) / 100) * layout.height
 
 		// Default: Assume width (x/cx)
-		return Math.round((parseFloat(size) / 100) * layout.width)
+		return (parseFloat(size) / 100) * layout.width
 	}
 
 	// LAST: Default value
@@ -76,7 +76,8 @@ export function inch2Emu (inches: number | string): number {
 	// Any value over 100 damn sure isnt inches, so lets assume its in EMU already, therefore, just return the same value
 	if (typeof inches === 'number' && inches > 100) return inches
 	if (typeof inches === 'string') inches = Number(inches.replace(/in*/gi, ''))
-	return Math.round(EMU * inches)
+	return EMU * inches
+	// return Math.round(EMU * inches)
 }
 
 /**

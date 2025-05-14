@@ -472,6 +472,7 @@ export interface ThemeProps {
 	 * @default 'Calibri'
 	 */
 	bodyFontFace?: string
+	[key: string]: string
 }
 
 // image / media ==================================================================================
@@ -1130,6 +1131,8 @@ export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBa
 	 * @deprecated v3.3.0 - use `line.endArrowType`
 	 */
 	lineTail?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle'
+
+	[key: string]: any
 }
 export interface TextProps {
 	text?: string
@@ -1738,6 +1741,16 @@ export interface SlideNumberProps extends PositionProps, TextBaseProps {
 	 */
 	margin?: Margin // TODO: convert to inches in 4.0 (valid values are 0-22)
 }
+
+export interface FontProps {
+	type: 'fntdata',
+	data: string | Uint8Array | ArrayBuffer,
+	extn: 'fntdata',
+	path: string,
+	rId: number,
+	typeface: string,
+}
+
 export interface SlideMasterProps {
 	/**
 	 * Unique name for this master
@@ -1871,4 +1884,5 @@ export interface IPresentationProps extends PresentationProps {
 	sections: SectionProps[]
 	slideLayouts: SlideLayout[]
 	slides: PresSlide[]
+	fonts: FontProps[]
 }

@@ -141,6 +141,12 @@ declare class PptxGenJS {
 	 * @param {TableToSlidesProps} props generation options
 	 */
 	tableToSlides(eleId: string, props?: PptxGenJS.TableToSlidesProps): void
+
+	/**
+	 * Add a new Font to Presentation
+	 * @param {FontProps} font - font properties
+	 */
+	addFont(font: PptxGenJS.FontProps): void
 }
 
 declare namespace PptxGenJS {
@@ -2676,4 +2682,11 @@ declare namespace PptxGenJS {
 		 */
 		bkgd: string
 	}
+
+	export interface FontProps {
+		type?: 'fntdata',
+		data: string | Uint8Array | ArrayBuffer,
+		rId?: number,
+		typeface: string,
+	} 
 }

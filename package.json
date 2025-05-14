@@ -1,6 +1,6 @@
 {
-	"name": "pptxgenjs",
-	"version": "4.0.0",
+	"name": "test-pptxgenjs",
+	"version": "4.0.0-alpha.1",
 	"author": {
 		"name": "Brent Ely",
 		"url": "https://github.com/gitbrent/"
@@ -25,7 +25,7 @@
 		"start": "gulp",
 		"ship": "gulp ship",
 		"defs": "gulp reactTestDefs",
-		"watch": "rollup -cw"
+		"watch": "rollup -cw --bundleConfigAsCjs"
 	},
 	"browser": {
 		"express": false,
