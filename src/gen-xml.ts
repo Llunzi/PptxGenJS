@@ -394,10 +394,10 @@ function slideObjectToXml (slide: PresSlide | SlideLayout): string {
 				// Margin/Padding/Inset for textboxes
 				if (!slideItemObj.options._bodyProp) slideItemObj.options._bodyProp = {}
 				if (slideItemObj.options.margin && Array.isArray(slideItemObj.options.margin)) {
-					slideItemObj.options._bodyProp.lIns = valToPts(slideItemObj.options.margin[0] || 0)
-					slideItemObj.options._bodyProp.rIns = valToPts(slideItemObj.options.margin[1] || 0)
-					slideItemObj.options._bodyProp.bIns = valToPts(slideItemObj.options.margin[2] || 0)
-					slideItemObj.options._bodyProp.tIns = valToPts(slideItemObj.options.margin[3] || 0)
+					slideItemObj.options._bodyProp.lIns = valToPts(slideItemObj.options.margin[0] || undefined)
+					slideItemObj.options._bodyProp.rIns = valToPts(slideItemObj.options.margin[1] || undefined)
+					slideItemObj.options._bodyProp.bIns = valToPts(slideItemObj.options.margin[2] || undefined)
+					slideItemObj.options._bodyProp.tIns = valToPts(slideItemObj.options.margin[3] || undefined)
 				} else if (typeof slideItemObj.options.margin === 'number') {
 					slideItemObj.options._bodyProp.lIns = valToPts(slideItemObj.options.margin)
 					slideItemObj.options._bodyProp.rIns = valToPts(slideItemObj.options.margin)
@@ -589,7 +589,7 @@ function slideObjectToXml (slide: PresSlide | SlideLayout): string {
 					strSlideXml += '</a:blip>'
 				} else {
 					strSlideXml += `<a:blip r:embed="rId${slideItemObj.imageRid}">`
-					strSlideXml += slideItemObj.options.transparency ? `<a:alphaModFix amt="${(100 - slideItemObj.options.transparency) * 1000}"/>` : ''
+					strSlideXml += slideItemObj.options.transparency ? `<a:alphaModFix amt="${Math.round((100 - slideItemObj.options.transparency) * 1000)}"/>` : ''
 					strSlideXml += '</a:blip>'
 				}
 				if (sizing?.type) {
@@ -1775,8 +1775,9 @@ function getLayoutIdxForSlide (slides: PresSlide[], slideLayouts: SlideLayout[],
  * @return {string} XML
  */
 export function makeXmlTheme (pres: IPresentationProps): string {
-	const majorFont = pres.theme?.headFontFace ? `<a:latin typeface="${pres.theme?.headFontFace}"/>` : '<a:latin typeface="Calibri Light" panose="020F0302020204030204"/>'
-	const minorFont = pres.theme?.bodyFontFace ? `<a:latin typeface="${pres.theme?.bodyFontFace}"/>` : '<a:latin typeface="Calibri" panose="020F0502020204030204"/>'
+	// '<a:latin typeface="Calibri Light" panose="020F0302020204030204"/>' 会出现乱码
+	const majorFont = pres.theme?.headFontFace ? `<a:latin typeface="${pres.theme?.headFontFace}"/>` : '<a:latin typeface="Calibri"/>'
+	const minorFont = pres.theme?.bodyFontFace ? `<a:latin typeface="${pres.theme?.bodyFontFace}"/>` : '<a:latin typeface="Calibri"/>'
 	const { accent1 = '4472C4', accent2 = 'ED7D31', accent3 = 'A5A5A5', accent4 = 'FFC000', accent5 = '5B9BD5', accent6 = '70AD47', hlink = '0563C1', folHlink = '954F72', dk1 = '000000', lt1 = 'FFFFFF', dk2 = '44546A', lt2 = 'E7E6E6' } = pres.theme || {}
 
 	return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -1822,9 +1823,8 @@ export function makeXmlTheme (pres: IPresentationProps): string {
     </a:clrScheme>
     <a:fontScheme name="Office">
       <a:majorFont>
-				${majorFont}
-        <a:latin typeface="Calibri Light" panose="020F0302020204030204"/>
-        <a:ea typeface=""/>
+				${majorFont || ''}
+				<a:ea typeface=""/>
         <a:cs typeface=""/>
         <a:font script="Jpan" typeface="游ゴシック Light"/>
         <a:font script="Hang" typeface="맑은 고딕"/>
@@ -1875,10 +1875,9 @@ export function makeXmlTheme (pres: IPresentationProps): string {
         <a:font script="Tfng" typeface="Ebrima"/>
       </a:majorFont>
       <a:minorFont>
-        <a:latin typeface="Calibri" panose="020F0502020204030204"/>
 				${minorFont}
-        <a:ea typeface=""/>
-        <a:cs typeface=""/>
+       	<a:ea typeface=""/>
+        <a:cs typeface=""/> 
         <a:font script="Jpan" typeface="游ゴシック"/>
         <a:font script="Hang" typeface="맑은 고딕"/>
         <a:font script="Hans" typeface="等线"/>

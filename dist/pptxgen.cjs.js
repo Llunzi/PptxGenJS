@@ -1,4 +1,4 @@
-/* PptxGenJS 4.0.0-alpha.1 @ 2025-05-13T09:57:10.962Z */
+/* PptxGenJS 4.0.0-alpha.1 @ 2025-05-20T10:09:00.500Z */
 'use strict';
 
 var JSZip = require('jszip');
@@ -631,26 +631,28 @@ const IMG_PLAYBTN = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4AAAAVnCAYAA
  * @param {PresLayout} layout - presentation layout
  * @returns {number} calculated size
  */
-function getSmartParseNumber(size, xyDir, layout) {
+function getSmartParseNumber(size, xyDir, layout, round = true) {
     // FIRST: Convert string numeric value if reqd
     if (typeof size === 'string' && !isNaN(Number(size)))
         size = Number(size);
     // CASE 1: Number in inches
     // Assume any number less than 100 is inches
     if (typeof size === 'number' && size < 100)
-        return inch2Emu(size);
+        return inch2Emu(size, round);
     // CASE 2: Number is already converted to something other than inches
     // Assume any number greater than 100 sure isnt inches! Just return it (assume value is EMU already).
     if (typeof size === 'number' && size >= 100)
         return size;
     // CASE 3: Percentage (ex: '50%')
     if (typeof size === 'string' && size.includes('%')) {
+        const _w = (parseFloat(size) / 100) * layout.width;
+        const _h = (parseFloat(size) / 100) * layout.height;
         if (xyDir && xyDir === 'X')
-            return (parseFloat(size) / 100) * layout.width;
+            return round ? Math.round(_w) : _w;
         if (xyDir && xyDir === 'Y')
-            return (parseFloat(size) / 100) * layout.height;
+            return round ? Math.round(_h) : _h;
         // Default: Assume width (x/cx)
-        return (parseFloat(size) / 100) * layout.width;
+        return round ? Math.round(_w) : _w;
     }
     // LAST: Default value
     return 0;
@@ -684,15 +686,14 @@ function encodeXmlEntities(xml) {
  * @param {number|string} inches - as string or number
  * @returns {number} EMU value
  */
-function inch2Emu(inches) {
+function inch2Emu(inches, round = true) {
     // NOTE: Provide Caller Safety: Numbers may get conv<->conv during flight, so be kind and do some simple checks to ensure inches were passed
     // Any value over 100 damn sure isnt inches, so lets assume its in EMU already, therefore, just return the same value
     if (typeof inches === 'number' && inches > 100)
         return inches;
     if (typeof inches === 'string')
         inches = Number(inches.replace(/in*/gi, ''));
-    return EMU * inches;
-    // return Math.round(EMU * inches)
+    return round ? Math.round(EMU * inches) : EMU * inches;
 }
 /**
  * Convert `pt` into points (using `ONEPT`)
@@ -5361,10 +5362,10 @@ function slideObjectToXml(slide) {
                 if (!slideItemObj.options._bodyProp)
                     slideItemObj.options._bodyProp = {};
                 if (slideItemObj.options.margin && Array.isArray(slideItemObj.options.margin)) {
-                    slideItemObj.options._bodyProp.lIns = valToPts(slideItemObj.options.margin[0] || 0);
-                    slideItemObj.options._bodyProp.rIns = valToPts(slideItemObj.options.margin[1] || 0);
-                    slideItemObj.options._bodyProp.bIns = valToPts(slideItemObj.options.margin[2] || 0);
-                    slideItemObj.options._bodyProp.tIns = valToPts(slideItemObj.options.margin[3] || 0);
+                    slideItemObj.options._bodyProp.lIns = valToPts(slideItemObj.options.margin[0] || undefined);
+                    slideItemObj.options._bodyProp.rIns = valToPts(slideItemObj.options.margin[1] || undefined);
+                    slideItemObj.options._bodyProp.bIns = valToPts(slideItemObj.options.margin[2] || undefined);
+                    slideItemObj.options._bodyProp.tIns = valToPts(slideItemObj.options.margin[3] || undefined);
                 }
                 else if (typeof slideItemObj.options.margin === 'number') {
                     slideItemObj.options._bodyProp.lIns = valToPts(slideItemObj.options.margin);
@@ -5531,7 +5532,7 @@ function slideObjectToXml(slide) {
                 }
                 else {
                     strSlideXml += `<a:blip r:embed="rId${slideItemObj.imageRid}">`;
-                    strSlideXml += slideItemObj.options.transparency ? `<a:alphaModFix amt="${(100 - slideItemObj.options.transparency) * 1000}"/>` : '';
+                    strSlideXml += slideItemObj.options.transparency ? `<a:alphaModFix amt="${Math.round((100 - slideItemObj.options.transparency) * 1000)}"/>` : '';
                     strSlideXml += '</a:blip>';
                 }
                 if (sizing === null || sizing === void 0 ? void 0 : sizing.type) {
@@ -6663,8 +6664,9 @@ function getLayoutIdxForSlide(slides, slideLayouts, slideNumber) {
  */
 function makeXmlTheme(pres) {
     var _a, _b, _c, _d;
-    const majorFont = ((_a = pres.theme) === null || _a === void 0 ? void 0 : _a.headFontFace) ? `<a:latin typeface="${(_b = pres.theme) === null || _b === void 0 ? void 0 : _b.headFontFace}"/>` : '<a:latin typeface="Calibri Light" panose="020F0302020204030204"/>';
-    const minorFont = ((_c = pres.theme) === null || _c === void 0 ? void 0 : _c.bodyFontFace) ? `<a:latin typeface="${(_d = pres.theme) === null || _d === void 0 ? void 0 : _d.bodyFontFace}"/>` : '<a:latin typeface="Calibri" panose="020F0502020204030204"/>';
+    // '<a:latin typeface="Calibri Light" panose="020F0302020204030204"/>' 会出现乱码
+    const majorFont = ((_a = pres.theme) === null || _a === void 0 ? void 0 : _a.headFontFace) ? `<a:latin typeface="${(_b = pres.theme) === null || _b === void 0 ? void 0 : _b.headFontFace}"/>` : '<a:latin typeface="Calibri"/>';
+    const minorFont = ((_c = pres.theme) === null || _c === void 0 ? void 0 : _c.bodyFontFace) ? `<a:latin typeface="${(_d = pres.theme) === null || _d === void 0 ? void 0 : _d.bodyFontFace}"/>` : '<a:latin typeface="Calibri"/>';
     const { accent1 = '4472C4', accent2 = 'ED7D31', accent3 = 'A5A5A5', accent4 = 'FFC000', accent5 = '5B9BD5', accent6 = '70AD47', hlink = '0563C1', folHlink = '954F72', dk1 = '000000', lt1 = 'FFFFFF', dk2 = '44546A', lt2 = 'E7E6E6' } = pres.theme || {};
     return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Office Theme">
@@ -6709,9 +6711,8 @@ function makeXmlTheme(pres) {
     </a:clrScheme>
     <a:fontScheme name="Office">
       <a:majorFont>
-				${majorFont}
-        <a:latin typeface="Calibri Light" panose="020F0302020204030204"/>
-        <a:ea typeface=""/>
+				${majorFont || ''}
+				<a:ea typeface=""/>
         <a:cs typeface=""/>
         <a:font script="Jpan" typeface="游ゴシック Light"/>
         <a:font script="Hang" typeface="맑은 고딕"/>
@@ -6762,10 +6763,9 @@ function makeXmlTheme(pres) {
         <a:font script="Tfng" typeface="Ebrima"/>
       </a:majorFont>
       <a:minorFont>
-        <a:latin typeface="Calibri" panose="020F0502020204030204"/>
 				${minorFont}
-        <a:ea typeface=""/>
-        <a:cs typeface=""/>
+       	<a:ea typeface=""/>
+        <a:cs typeface=""/> 
         <a:font script="Jpan" typeface="游ゴシック"/>
         <a:font script="Hang" typeface="맑은 고딕"/>
         <a:font script="Hans" typeface="等线"/>

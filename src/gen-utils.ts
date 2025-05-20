@@ -16,25 +16,28 @@ import { PresLayout, TextGlowProps, PresSlide, ShapeFillProps, Color, ShapeLineP
  * @param {PresLayout} layout - presentation layout
  * @returns {number} calculated size
  */
-export function getSmartParseNumber (size: Coord, xyDir: 'X' | 'Y', layout: PresLayout): number {
+export function getSmartParseNumber (size: Coord, xyDir: 'X' | 'Y', layout: PresLayout, round: boolean = true): number {
 	// FIRST: Convert string numeric value if reqd
 	if (typeof size === 'string' && !isNaN(Number(size))) size = Number(size)
 
 	// CASE 1: Number in inches
 	// Assume any number less than 100 is inches
-	if (typeof size === 'number' && size < 100) return inch2Emu(size)
+	if (typeof size === 'number' && size < 100) return inch2Emu(size, round)
 
 	// CASE 2: Number is already converted to something other than inches
 	// Assume any number greater than 100 sure isnt inches! Just return it (assume value is EMU already).
 	if (typeof size === 'number' && size >= 100) return size
 
+	
 	// CASE 3: Percentage (ex: '50%')
 	if (typeof size === 'string' && size.includes('%')) {
-		if (xyDir && xyDir === 'X') return (parseFloat(size) / 100) * layout.width
-		if (xyDir && xyDir === 'Y') return (parseFloat(size) / 100) * layout.height
+		const _w = (parseFloat(size) / 100) * layout.width
+		const _h = (parseFloat(size) / 100) * layout.height
+		if (xyDir && xyDir === 'X') return round ? Math.round(_w) : _w
+		if (xyDir && xyDir === 'Y') return round ? Math.round(_h) : _h
 
 		// Default: Assume width (x/cx)
-		return (parseFloat(size) / 100) * layout.width
+		return round ? Math.round(_w) : _w
 	}
 
 	// LAST: Default value
@@ -71,13 +74,12 @@ export function encodeXmlEntities (xml: string): string {
  * @param {number|string} inches - as string or number
  * @returns {number} EMU value
  */
-export function inch2Emu (inches: number | string): number {
+export function inch2Emu (inches: number | string, round: boolean = true): number {
 	// NOTE: Provide Caller Safety: Numbers may get conv<->conv during flight, so be kind and do some simple checks to ensure inches were passed
 	// Any value over 100 damn sure isnt inches, so lets assume its in EMU already, therefore, just return the same value
 	if (typeof inches === 'number' && inches > 100) return inches
 	if (typeof inches === 'string') inches = Number(inches.replace(/in*/gi, ''))
-	return EMU * inches
-	// return Math.round(EMU * inches)
+	return round ? Math.round(EMU * inches) : EMU * inches
 }
 
 /**
