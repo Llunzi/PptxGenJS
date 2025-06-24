@@ -1,4 +1,4 @@
-/* PptxGenJS 4.0.0-alpha.1 @ 2025-05-20T10:09:00.500Z */
+/* PptxGenJS 4.0.0-alpha.3 @ 2025-06-24T10:48:22.613Z */
 'use strict';
 
 var JSZip = require('jszip');
@@ -2576,6 +2576,9 @@ function addTextDefinition(target, text, opts, isPlaceholder) {
             itemOpts._bodyProp = itemOpts._bodyProp || {};
             itemOpts._bodyProp.autoFit = itemOpts.autoFit || false; // DEPRECATED: (3.3.0) If true, shape will collapse to text size (Fit To shape)
             itemOpts._bodyProp.anchor = !itemOpts.placeholder ? TEXT_VALIGN.ctr : null; // VALS: [t,ctr,b]
+            if (itemOpts.anchor) {
+                itemOpts._bodyProp.anchor = itemOpts.anchor;
+            }
             itemOpts._bodyProp.vert = itemOpts.vert || null; // VALS: [eaVert,horz,mongolianVert,vert,vert270,wordArtVert,wordArtVertRtl]
             itemOpts._bodyProp.wrap = typeof itemOpts.wrap === 'boolean' ? itemOpts.wrap : true;
             // E: Inset
@@ -6026,8 +6029,12 @@ function genXmlBodyProperties(slideObject) {
         // C: Add rtl after margins
         bodyProperties += ' rtlCol="0"';
         // D: Add anchorPoints
-        if (slideObject.options._bodyProp.anchor)
+        if (slideObject.options.anchor) {
+            bodyProperties += ' anchor="' + slideObject.options.anchor + '"'; // VALS: [t,ctr,b]
+        }
+        else if (slideObject.options._bodyProp.anchor) {
             bodyProperties += ' anchor="' + slideObject.options._bodyProp.anchor + '"'; // VALS: [t,ctr,b]
+        }
         if (slideObject.options._bodyProp.vert)
             bodyProperties += ' vert="' + slideObject.options._bodyProp.vert + '"'; // VALS: [eaVert,horz,mongolianVert,vert,vert270,wordArtVert,wordArtVertRtl]
         // E: Close <a:bodyPr element

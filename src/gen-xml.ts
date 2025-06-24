@@ -1091,7 +1091,11 @@ function genXmlBodyProperties (slideObject: ISlideObject | TableCell): string {
 		bodyProperties += ' rtlCol="0"'
 
 		// D: Add anchorPoints
-		if (slideObject.options._bodyProp.anchor) bodyProperties += ' anchor="' + slideObject.options._bodyProp.anchor + '"' // VALS: [t,ctr,b]
+		if (slideObject.options.anchor) {
+			bodyProperties += ' anchor="' + slideObject.options.anchor + '"' // VALS: [t,ctr,b]
+		} else if (slideObject.options._bodyProp.anchor) {
+			bodyProperties += ' anchor="' + slideObject.options._bodyProp.anchor + '"' // VALS: [t,ctr,b]
+		} 
 		if (slideObject.options._bodyProp.vert) bodyProperties += ' vert="' + slideObject.options._bodyProp.vert + '"' // VALS: [eaVert,horz,mongolianVert,vert,vert270,wordArtVert,wordArtVertRtl]
 
 		// E: Close <a:bodyPr element
